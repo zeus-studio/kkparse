@@ -18,8 +18,8 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "kkparse",
-		Width:  1024,
-		Height: 768,
+		Width:  960,
+		Height: 640,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
