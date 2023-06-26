@@ -2,8 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { Input, Button, Typography, message, Row, Col, Space } from 'antd';
 import axios, { AxiosProgressEvent } from 'axios';
+import ReactPlayer from 'react-player';
 
-import { Parse} from "../wailsjs/go/main/App";
+import { Parse, Download } from "../wailsjs/go/main/App";
 import type { parser } from '../wailsjs/go/models';
 
 const { TextArea } = Input;
@@ -54,30 +55,10 @@ function App() {
 
     const [downloading, setDownloading] = React.useState<boolean>(false);
     const [downloadProgress, setDownloadProgress] = React.useState<string>('');
-    const handleDownloadVideo = React.useCallback(() => {
+    const handleDownloadVideo = React.useCallback(async () => {
         setDownloading(true);
-        axios.get(videoUrl, {
-            responseType: 'blob',
-            onDownloadProgress: (evt: AxiosProgressEvent) => {
-                if (!evt.total) return;
-                const progress = (evt.loaded / evt.total) * 100
-                setDownloadProgress(`${progress}`)
-            },
-        }).then((res) => {
-            const type = res.headers['Content-Type']
-            const blob = new Blob([res.data])
-            const a = document.createElement('a')
-            a.download = Date.now() + '.mp4';
-            a.href = window.URL.createObjectURL(blob)
-            a.click()
-            URL.revokeObjectURL(a.href)
-            a.remove()
-            setDownloading(false)
-            setDownloadProgress('')
-        }).catch(() => {
-            setDownloading(false)
-            setDownloadProgress('')
-        })
+        await Download(videoUrl);
+        setDownloading(false)
     }, []);
 
     return (
@@ -105,7 +86,12 @@ function App() {
                 </Col>
                 <Col span={12}>
                     <div className="player">
-                        <video src={videoUrl} controls />
+                        <ReactPlayer
+                            url={videoUrl}
+                            controls
+                            width="auto"
+                            height="100%"
+                        />
                     </div>
                 </Col>
             </Row>

@@ -3,8 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"kkparse/parser"
+	"os"
 	"regexp"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -38,4 +42,21 @@ func (a *App) Parse(shareUrl string) (*parser.VideoParseInfo, error) {
 		return nil, err
 	}
 	return parseRes, nil
+}
+
+func (a *App) Download(videoUrl string) error {
+	// 判断是否存在默认保存的目录
+	_, err := os.Stat("./download.txt")
+	if err != nil {
+		directory, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
+			Title: "请先选择默认保存目录",
+		})
+		if err != nil {
+			return err
+		}
+		ioutil.WriteFile("./download.txt", []byte(directory), 0644)
+		return err
+	}
+
+	return nil
 }
